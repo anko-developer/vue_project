@@ -1,60 +1,64 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
+    <TodoHeader></TodoHeader>
+    <TodoInput v-on:addTodo="addTodo"></TodoInput>
+    <TodoList v-bind:propsdata="todoItems" v-on:removeTodo="removeTodo"></TodoList>
+    <TodoFooter v-on:removeAll="clearAll"></TodoFooter>
   </div>
 </template>
 
 <script>
+// 컴포넌트 내용을 불러오기 위한 ES6 import 구문 / ES6 방식: import로 vue 파일을 가져온다.
+import TodoHeader from './components/TodoHeader.vue'
+import TodoInput from './components/TodoInput.vue'
+import TodoList from './components/TodoList.vue'
+import TodoFooter from './components/TodoFooter.vue'
+
+// ES5의 방식을 쓴다면 아래처럼 가능 / ES5 방식: var에 직접 담는다.
+// var TodoHeader = {
+//   template: '<div>header</div>'
+// }
+
 export default {
-  name: 'app',
-  data () {
+  data() {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      todoItems: []
     }
-  }
+  },
+  created() {
+      if (localStorage.length > 0) {
+          for(var i = 0; i <  localStorage.length; i++) {
+              this.todoItems.push(localStorage.key(i));
+          }
+      }
+  },
+  methods: {
+    addTodo(todoItem) { // TodoInput.vue에서 argument 값으로 value 값을 받아옴
+      localStorage.setItem(todoItem, todoItem);
+      this.todoItems.push(todoItem);
+    },
+    removeTodo(todoItem, index) {
+      localStorage.removeItem(todoItem);
+      this.todoItems.splice(index, 1);            
+    },
+    clearAll() {
+      localStorage.clear();
+      this.todoItems = [];
+    }
+  },
+  components: {
+    'TodoHeader': TodoHeader,
+    'TodoInput': TodoInput,
+    'TodoList': TodoList,
+    'TodoFooter': TodoFooter
+  },
 }
 </script>
 
 <style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-
-h1, h2 {
-  font-weight: normal;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
+  body {margin:0;background-color:#f6f6f8}
+  input {width:200px;border-style:groove}
+  button {border-style:groove}
+  #app {padding:0 10px}
+  .shadow {box-shadow:5px 10px 10px rgba(0,0,0,0.03)}
 </style>
